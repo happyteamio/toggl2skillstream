@@ -61,8 +61,39 @@ cookies = dict(JSESSIONID=auth_cookies["JSESSIONID"])
 
 r = requests.get(timesheets_url, headers=headers, cookies=cookies)
 
-print r.status_code
+#print r.status_code
 
 d = pq(r.text)
 
-date = datetime.datetime.strptime(d(".timecell")[1].text, "%d/%m/%Y")
+timesheet_url = base_url
+
+for tr in d(".oddrow, .evenrow").items():
+    timecell_value = tr(".timecell").text()
+
+    try:
+        date = datetime.datetime.strptime(timecell_value, "%d/%m/%Y").date()
+    except ValueError:
+        date = None
+        print "WARNING: Couldn't parse: " + timecell_value
+
+    if date <> None:
+        timespan = (date - datetime.date.today()).days
+
+        if timespan >= 0 and timespan <= 6:
+            timesheet_path = tr("a").attr("href")
+            timesheet_url = timesheet_url + "/" + timesheet_path
+
+headers = {
+    "Host": shost,
+    "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:41.0) Gecko/20100101 Firefox/41.0",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Referer": timesheets_url,
+    "Accept-Language": "pl,en-US;q=0.7,en;q=0.3",
+    "Accept-Encoding": "gzip, deflate",
+    "Connection": "keep-alive"
+}
+cookies = dict(JSESSIONID=auth_cookies["JSESSIONID"])
+
+r = requests.get(timesheet_url, headers=headers, cookies=cookies)
+
+d = pq(r.text)
