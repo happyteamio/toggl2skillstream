@@ -2,6 +2,7 @@ import ConfigParser
 import datetime
 import requests
 from pyquery import PyQuery as pq
+from SkillstreamService import SkillstreamService
 
 config = ConfigParser.ConfigParser()
 config.read("config.ini")
@@ -128,7 +129,7 @@ for formElement in d("#tform select").items():
 
     payload[formElement.attr("name")] = value
 
-url = base_url + "/" + d("#tform").attr("action")
+#url = base_url + "/" + d("#tform").attr("action")
 
 payload = {
     "costId1": "",
@@ -245,6 +246,10 @@ payload = {
     "wedStartMinute": "--"
 }
 
-r = requests.post(url, headers=headers, data=payload, cookies=cookies)
+#r = requests.post(url, headers=headers, data=payload, cookies=cookies)
+
+ss = SkillstreamService()
+
+ss.report_hours("2015/10/06", 5, 30)
 
 print r.status_code
